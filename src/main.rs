@@ -38,8 +38,11 @@ async fn main() {
     let reasons = load_reasons()
         .await
         .expect("Failed to load reasons.json file");
+    let reasons_amount = reasons.len();
+    println!("Loaded {reasons_amount} reasons!");
+
     let app_state = AppState {
-        len: reasons.len(),
+        len: reasons_amount,
         reasons,
     };
 

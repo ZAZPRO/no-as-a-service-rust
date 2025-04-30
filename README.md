@@ -1,7 +1,7 @@
-# ❌ No-as-a-Service
+# ❌ No-as-a-Service Rust 🦀
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/hotheadhacker/no-as-a-service/main/assets/imgs/image.png" width="800" alt="No-as-a-Service Banner"/>
+  <img src="https://raw.githubusercontent.com/ZAZPRO/no-as-a-service-rust/main/assets/imgs/image.png" width="800" alt="No-as-a-Service Banner"/>
 </p>
 
 
@@ -48,14 +48,9 @@ git clone https://github.com/hotheadhacker/no-as-a-service.git
 cd no-as-a-service
 ```
 
-### 2. Install dependencies
+### 2. Run
 ```bash
-npm install
-```
-
-### 3. Start the server
-```bash
-npm start
+cargo run --release
 ```
 
 The API will be live at:
@@ -63,9 +58,9 @@ The API will be live at:
 http://localhost:3000/no
 ```
 
-You can also change the port using an environment variable:
+You can also change the port and ip using an environment variable:
 ```bash
-PORT=5000 npm start
+NOAAS_PORT=5000 NOAAS_IP=0.0.0.0 npm start
 ```
 
 ---
@@ -73,36 +68,14 @@ PORT=5000 npm start
 ## 📁 Project Structure
 
 ```
-no-as-service/
-├── index.js            # Express API
-├── reasons.json        # 1000+ universal rejection reasons
-├── package.json
-└── README.md
+└── no-as-a-service-rust
+    ├── README.md
+    ├── reasons.json # 25+ reasons
+    └── src
+        └── main.rs # Axum API
 ```
 
 ---
-
-## 📦 package.json
-
-For reference, here’s the package config:
-
-```json
-{
-  "name": "no-as-service",
-  "version": "1.0.0",
-  "description": "A lightweight API that returns random rejection or no reasons.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js"
-  },
-  "author": "hotheadhacker",
-  "license": "MIT",
-  "dependencies": {
-    "express": "^4.18.2",
-    "express-rate-limit": "^7.0.0"
-  }
-}
-```
 
 ---
 
@@ -110,8 +83,10 @@ For reference, here’s the package config:
 
 Created with creative stubbornness by [hotheadhacker](https://github.com/hotheadhacker)
 
+Ported to rust by [ZAZPRO](https://github.com/ZAZPRO)
+
 ---
 
 ## 📄 License
 
-MIT — do whatever, just don’t say yes when you should say no.
+MIT - as original project.
