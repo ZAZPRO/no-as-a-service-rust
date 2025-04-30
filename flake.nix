@@ -17,17 +17,14 @@
     flake-utils.lib.eachDefaultSystem (
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
+          f = with fenix.packages.${system}; combine [
+            stable.toolchain
+          ];
       in {
         nixpkgs.overlays = [fenix.overlays.default];
         devShells.default = pkgs.mkShell {
           packages = [
-            (fenix.packages.${system}.complete.withComponents [
-              "cargo"
-              "clippy"
-              "rust-src"
-              "rustc"
-              "rustfmt"
-            ])
+            f
             pkgs.rust-analyzer
           ];
         };

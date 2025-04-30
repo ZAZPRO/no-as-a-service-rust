@@ -2,7 +2,7 @@ use axum::{Json, Router, extract::State, routing::get};
 use rand::Rng;
 use serde::Serialize;
 use std::env;
-use tokio::{fs, net::TcpListener};
+use tokio::net::TcpListener;
 
 #[derive(Clone, Debug, Default)]
 struct AppState {
@@ -30,11 +30,9 @@ async fn get_random_reason(State(state): State<AppState>) -> Json<ApiResponse> {
 
 #[tokio::main]
 async fn main() {
-    let reasons_file: String = fs::read_to_string("reasons.json")
-        .await
-        .expect("Can not read reasons.json file");
+    let reasons_string: &str = include_str!("../reasons.json");
     let reasons: Vec<String> =
-        serde_json::from_str(reasons_file.as_str()).expect("Can not parse reasons file");
+        serde_json::from_str(reasons_string).expect("Can not parse reasons file");
     let reasons_amount = reasons.len();
     println!("Loaded {reasons_amount} reasons!");
 
