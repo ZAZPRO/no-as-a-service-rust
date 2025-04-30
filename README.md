@@ -60,7 +60,7 @@ http://localhost:3000/no
 
 You can also change the port and ip using an environment variable:
 ```bash
-NOAAS_PORT=5000 NOAAS_IP=0.0.0.0 npm start
+NAAS_PORT=5000 NAAS_IP=0.0.0.0 npm start
 ```
 
 ---
