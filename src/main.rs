@@ -1,48 +1,45 @@
-use axum::{Json, Router, extract::State, routing::get};
+#[global_allocator]
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
+use bytes::BytesMut;
+use core::str;
 use rand::Rng;
-use serde::Serialize;
-use std::env;
-use tokio::net::TcpListener;
+use std::{env, error::Error, sync::Arc};
+use tokio::{
+    io::{AsyncReadExt, AsyncWriteExt, BufReader},
+    net::{TcpListener, TcpStream},
+};
 
-#[derive(Clone, Debug, Default)]
-struct AppState {
-    pub reasons: Vec<String>,
-    pub len: usize,
-}
+async fn process(
+    stream: TcpStream,
+    reasons: &Vec<String>,
+    len: usize,
+) -> Result<(), Box<dyn Error>> {
+    let mut stream = BufReader::new(stream);
+    let mut buffer = BytesMut::with_capacity(7);
+    stream.read_buf(&mut buffer).await?;
+    let s = str::from_utf8_mut(&mut buffer)?;
+    if s == "GET /no" {
+        let random_index = rand::rng().random_range(..len);
+        let random_reason = reasons[random_index].as_str();
+        let response = format!(
+            "HTTP/1.1 200 \ncontent-length: {}\ncontent-type: application/json\n\n{{\"reason\":\"{random_reason}\"}}",
+            random_reason.len() + 13
+        );
 
-#[derive(Clone, Debug, Default, Serialize)]
-struct ApiResponse {
-    reason: String,
-}
-
-impl ApiResponse {
-    pub fn new(reason: String) -> Self {
-        Self { reason }
+        stream.write_all(response.as_bytes()).await?;
     }
-}
 
-async fn get_random_reason(State(state): State<AppState>) -> Json<ApiResponse> {
-    let random_index = rand::rng().random_range(..state.len);
-    let random_reason = state.reasons[random_index].clone();
-
-    Json(ApiResponse::new(random_reason))
+    Ok(())
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Box<dyn Error>> {
     let reasons_string: &str = include_str!("../reasons.json");
     let reasons: Vec<String> =
         serde_json::from_str(reasons_string).expect("Can not parse reasons file");
     let reasons_amount = reasons.len();
     println!("Loaded {reasons_amount} reasons!");
-
-    let app_state = AppState {
-        len: reasons_amount,
-        reasons,
-    };
-    let app = Router::new()
-        .route("/no", get(get_random_reason))
-        .with_state(app_state);
 
     let ip: String = env::var("NAAS_IP").unwrap_or("0.0.0.0".to_string());
     let port: String = env::var("NAAS_PORT").unwrap_or("3000".to_string());
@@ -51,7 +48,14 @@ async fn main() {
     let listener = TcpListener::bind(address.as_str())
         .await
         .expect("Failed to create TCP listener");
-    axum::serve(listener, app)
-        .await
-        .expect("Failed to start axum app");
+    let shared_reasons = Arc::new(reasons);
+    loop {
+        let (stream, _) = listener.accept().await?;
+        let reasons = Arc::clone(&shared_reasons);
+        tokio::spawn(async move {
+            if let Err(e) = process(stream, &reasons, reasons_amount).await {
+                println!("failed to process connection; error = {e}");
+            }
+        });
+    }
 }

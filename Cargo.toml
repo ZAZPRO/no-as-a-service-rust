@@ -4,8 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-axum = "0.8.4"
+bytes = "1.10.1"
 rand = "0.9.1"
-serde = { version = "1.0.219", features = ["serde_derive"] }
 serde_json = "1.0.140"
+tikv-jemallocator = "0.6.0"
 tokio = { version = "1.44.2", features = ["full"] }
+
+[profile.release]
+codegen-units = 1
+lto = "fat"

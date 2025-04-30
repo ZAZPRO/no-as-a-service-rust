@@ -1,1 +1,5 @@
 /target
+*.txt
+*.data
+*.data.old
+*.svg
