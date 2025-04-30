@@ -28,7 +28,7 @@ async fn get_random_reason(State(state): State<AppState>) -> Json<ApiResponse> {
     let random_reason = state.reasons[random_index].clone();
 
     let resp = ApiResponse {
-        reason: random_reason
+        reason: random_reason,
     };
     Json(resp)
 }
@@ -45,11 +45,13 @@ async fn main() {
 
     let ip: String = env::var("NOAAS_IP").unwrap_or("0.0.0.0".to_string());
     let port: String = env::var("NOAAS_PORT").unwrap_or("3000".to_string());
-    let address: String = format!("{}:{}", ip, port);
+    let address: String = format!("{ip}:{port}");
 
-    let app = Router::new().route("/no", get(get_random_reason)).with_state(app_state);
+    let app = Router::new()
+        .route("/no", get(get_random_reason))
+        .with_state(app_state);
 
     let listener = TcpListener::bind(address.as_str()).await.unwrap();
-    println!("No As a Service is running at: {}", address);
+    println!("No As a Service is running at: {address}");
     axum::serve(listener, app).await.unwrap();
 }
