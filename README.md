@@ -1,5 +1,7 @@
 # ❌ No-as-a-Service Rust 🦀
 
+Faster port with more rejection reasons and own non limited instance
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/ZAZPRO/no-as-a-service-rust/main/assets/imgs/image.png" width="800" alt="No-as-a-Service Banner"/>
 </p>
@@ -16,11 +18,11 @@ Built for humans, excuses, and humor.
 
 **Base URL**
 ```
-https://naas.isalman.dev/no
+https://naas.daniilmira.com/no
 ```
 
 **Method:** `GET`  
-**Rate Limit:** `10 requests per minute per IP`
+**Rate Limit:** `None`
 
 ### 🔄 Example Request
 ```http
