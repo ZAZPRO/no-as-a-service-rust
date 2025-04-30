@@ -45,16 +45,18 @@ async fn main() {
         len: reasons_amount,
         reasons,
     };
-
-    let ip: String = env::var("NOAAS_IP").unwrap_or("0.0.0.0".to_string());
-    let port: String = env::var("NOAAS_PORT").unwrap_or("3000".to_string());
-    let address: String = format!("{ip}:{port}");
-
     let app = Router::new()
         .route("/no", get(get_random_reason))
         .with_state(app_state);
 
-    let listener = TcpListener::bind(address.as_str()).await.unwrap();
+    let ip: String = env::var("NOAAS_IP").unwrap_or("0.0.0.0".to_string());
+    let port: String = env::var("NOAAS_PORT").unwrap_or("3000".to_string());
+    let address: String = format!("{ip}:{port}");
     println!("No As a Service is running at: {address}");
-    axum::serve(listener, app).await.unwrap();
+    let listener = TcpListener::bind(address.as_str())
+        .await
+        .expect("Failed to create TCP listener");
+    axum::serve(listener, app)
+        .await
+        .expect("Failed to start axum app");
 }
