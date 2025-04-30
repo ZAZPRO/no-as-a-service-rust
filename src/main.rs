@@ -1,8 +1,7 @@
-use std::env;
-
 use axum::{Json, Router, extract::State, routing::get};
 use rand::Rng;
 use serde::Serialize;
+use std::env;
 use tokio::{fs, net::TcpListener};
 
 #[derive(Clone, Debug, Default)]
@@ -16,28 +15,26 @@ struct ApiResponse {
     reason: String,
 }
 
-async fn load_reasons() -> Result<Vec<String>, std::io::Error> {
-    let reasons_file: String = fs::read_to_string("reasons.json").await?;
-    let v: Vec<String> = serde_json::from_str(reasons_file.as_str())?;
-
-    Ok(v)
+impl ApiResponse {
+    pub fn new(reason: String) -> Self {
+        Self { reason }
+    }
 }
 
 async fn get_random_reason(State(state): State<AppState>) -> Json<ApiResponse> {
     let random_index = rand::rng().random_range(..state.len);
     let random_reason = state.reasons[random_index].clone();
 
-    let resp = ApiResponse {
-        reason: random_reason,
-    };
-    Json(resp)
+    Json(ApiResponse::new(random_reason))
 }
 
 #[tokio::main]
 async fn main() {
-    let reasons = load_reasons()
+    let reasons_file: String = fs::read_to_string("reasons.json")
         .await
-        .expect("Failed to load reasons.json file");
+        .expect("Can not read reasons.json file");
+    let reasons: Vec<String> =
+        serde_json::from_str(reasons_file.as_str()).expect("Can not parse reasons file");
     let reasons_amount = reasons.len();
     println!("Loaded {reasons_amount} reasons!");
 
